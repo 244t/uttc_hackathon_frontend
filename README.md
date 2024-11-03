@@ -1,1 +1,3 @@
 # uttc_hackathon_frontend
+
+ハッカソンのフロントエンド用のリポジトリ
