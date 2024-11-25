@@ -71,10 +71,12 @@
 // };
 
 // export default Tweet;
-import React, { useState } from 'react';
-import { Card, CardHeader, CardContent, CardActions, Avatar, IconButton, Typography, Box } from '@mui/material';
+import React, { useState,useEffect } from 'react';
+import { Card, CardHeader, CardContent, CardActions, Avatar, IconButton, Typography, Box, Link } from '@mui/material';
 import { Favorite, Reply, MoreVert } from '@mui/icons-material';
 import axios from 'axios';  // axiosをインポート
+import { useNavigate } from 'react-router-dom'; // react-router-domをインポート
+
 
 interface TweetProps {
     user_id: string;
@@ -87,6 +89,7 @@ interface TweetProps {
     edited_at: string;
     deleted_at: string;
     parent_post_id: string;
+    reply_counts: number;
 }
 
 const Tweet: React.FC<TweetProps> = ({
@@ -99,10 +102,12 @@ const Tweet: React.FC<TweetProps> = ({
     created_at,
     edited_at,
     deleted_at,
-    parent_post_id
+    parent_post_id,
+    reply_counts
 }) => {
     const [liked, setLiked] = useState(false);  // いいねの状態
     const [likeCount, setLikeCount] = useState(0);  // いいねのカウント
+    const navigate = useNavigate(); 
 
     // 時間をフォーマットする関数
     const formatTime = (dateString: string) => {
@@ -110,30 +115,74 @@ const Tweet: React.FC<TweetProps> = ({
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
-    //いいねボタンを押したときの処理
+    // コンポーネントの初期化時に、バックエンドからいいね数を取得
+    useEffect(() => {
+        const fetchLikeCount = async () => {
+            try {
+                const response = await axios.get(
+                    `https://uttc-hackathon-backend-951630660755.us-central1.run.app/post/${post_id}/likes`
+                );
+                
+                const userIds = response.data.user_ids || [];  // likes の user_ids を取得
+                setLikeCount(response.data.like_count);  // いいね数を状態に設定
+                 // user_ids に '001' が含まれているかをチェック
+                 if (userIds.includes("001")) {
+                    setLiked(true);  // いいねが押されている状態にする
+                }
+            } catch (error) {
+                console.error('Error fetching like count', error);
+            }
+        };
+
+        fetchLikeCount();
+    }, []);  // 初回レンダリング時に実行
+
     const handleLike = async () => {
         try {
-            // すでにいいねを押している場合は解除、押していなければ追加
-            const response = await axios.post(`https://uttc-hackathon-backend-951630660755.us-central1.run.app/post/01JDA08CJZRK6CZ73Z27ZSFVNS/like`, {
-                user_id: "001",
-                post_id: "01JDA08CJZRK6CZ73Z27ZSFVNS"
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json'  // JSONとして送信するためのヘッダー
-                }
-            });
-            
-            
-            // レスポンスによって状態を更新
-            if (response.status === 200) {
-                setLiked(!liked);
-                setLikeCount(likeCount + (liked ? -1 : 1));  // いいね数を増減
+            // いいねが押されていない状態 (unliked) の場合
+            if (!liked) {
+                const response = await axios.post(
+                    `https://uttc-hackathon-backend-951630660755.us-central1.run.app/post/01JDA08CJZRK6CZ73Z27ZSFVNS/like`, 
+                    {
+                        user_id: "001",
+                        post_id: post_id
+                    },
+                    {
+                        headers: {
+                            'Content-Type': 'application/json'  // JSONとして送信するためのヘッダー
+                        }
+                    }
+                );
+    
+        
+                setLiked(true);
+                setLikeCount(likeCount+1)
+            } else {
+                // いいねが押されている状態 (liked) の場合
+                const response = await axios.post(
+                    `https://uttc-hackathon-backend-951630660755.us-central1.run.app/post/01JDA08CJZRK6CZ73Z27ZSFVNS/unlike`, 
+                    {
+                        user_id: "001",
+                        post_id: post_id
+                    },
+                    {
+                        headers: {
+                            'Content-Type': 'application/json'  // JSONとして送信するためのヘッダー
+                        }
+                    }
+                );
+    
+                setLiked(false);  // 状態をunlikedに変更
+                setLikeCount(likeCount - 1);  // いいね数を減少
             }
         } catch (error) {
-            console.error('Error liking the post', error);
+            console.error('Error toggling like status', error);
         }
-    }; 
+    };
+    // ユーザー詳細ページに遷移
+    const handleUserClick = () => {
+        navigate(`/user`);  // ユーザーIDに基づいて詳細ページに遷移
+    };
 
     return (
         <Card sx={{ maxWidth: 345, mb: 2 }} elevation={10}>
@@ -148,7 +197,14 @@ const Tweet: React.FC<TweetProps> = ({
                         <MoreVert />
                     </IconButton>
                 }
-                title={name} 
+                title={<Link 
+                    component="button" 
+                    variant="body2" 
+                    onClick={handleUserClick} 
+                    sx={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
+                >
+                    {name}
+                </Link>} 
                 subheader={formatTime(created_at)} 
             />
             <CardContent>
@@ -175,6 +231,9 @@ const Tweet: React.FC<TweetProps> = ({
                 <IconButton aria-label="reply">
                     <Reply />
                 </IconButton>
+                <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                    {reply_counts}  {/* reply_countsの表示 */}
+                </Typography>
             </CardActions>
         </Card>
     );
