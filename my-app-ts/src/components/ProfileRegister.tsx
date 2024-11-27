@@ -90,7 +90,7 @@ const ProfileRegister: React.FC = () => {
     
     // Firebase Storageの参照を作成
     const imageRef = ref(storage, path);
-
+    console.log(imageRef)
     // 画像のアップロード
     await uploadBytes(imageRef, image);
     
@@ -103,13 +103,13 @@ const ProfileRegister: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // プロフィール画像とヘッダー画像をFirebaseにアップロード
-    const profileImageUrl = profileImage ? await uploadImage(profileImage, `profiles/${profileImage.name}`) : null;
-    const headerImageUrl = headerImage ? await uploadImage(headerImage, `headers/${headerImage.name}`) : null;
+    const profileImageUrl = profileImage ? await uploadImage(profileImage, `${encodeURIComponent(profileImage.name)}`) : null;
+    const headerImageUrl = headerImage ? await uploadImage(headerImage, `${encodeURIComponent(headerImage.name)}`) : null;
     console.log(profileImageUrl)
   
     // Axiosを使用してサーバーにPOSTリクエストを送信
     try {
-        const response = await axios.post('https://uttc-hackathon-backend-951630660755.us-central1.run.app/user/create', {
+        const response = await axios.post('https://uttc-hackathon-backend-951630660755.us-central1.run.app/user/register', {
             user_id : loginUser,
             name : name,
             bio : bio,
