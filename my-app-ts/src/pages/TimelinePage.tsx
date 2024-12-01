@@ -162,6 +162,11 @@ const TimelinePage: React.FC = () => {
 
               <TweetInput onTweetSubmit={handleTweetSubmit} />
 
+              <Box sx={{ 
+                borderBottom: '2px solid #E0E0E0', // 境界線の色と太さを設定
+                my: 2 // 上下のマージンを調整
+              }} />
+
               <Box sx={{ flex: 1, overflow: 'auto' }}>
                 <TweetList mode="timeline" />
               </Box>

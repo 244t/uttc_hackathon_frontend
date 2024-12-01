@@ -20,18 +20,6 @@ interface TweetProps {
     deleted_at: string;
     parent_post_id: string;
     reply_counts: number;
-    parentTweet?: {
-        user_id: string;
-        post_id: string;
-        content: string;
-        img_url: string;
-        name: string;
-        user_profile_img: string;
-        created_at: string;
-        edited_at: string;
-        deleted_at: string;
-        reply_counts: number;
-    };  // 親ツイートの情報（省略可能）
 }
 
 const Tweet: React.FC<TweetProps> = ({
@@ -85,23 +73,23 @@ const Tweet: React.FC<TweetProps> = ({
     
 
     // 親ツイートの情報を取得する処理（もし親ツイートがある場合）
-    useEffect(() => {
-        if (parent_post_id) {
-            const fetchParentTweet = async () => {
-                try {
-                    const response = await axios.get(
-                        `https://uttc-hackathon-backend-951630660755.us-central1.run.app/post/${parent_post_id}`
-                    );
-                    const parentTweetData = response.data;
+    // useEffect(() => {
+    //     if (parent_post_id) {
+    //         const fetchParentTweet = async () => {
+    //             try {
+    //                 const response = await axios.get(
+    //                     `https://uttc-hackathon-backend-951630660755.us-central1.run.app/post/${parent_post_id}`
+    //                 );
+    //                 const parentTweetData = response.data;
                     
-                } catch (error) {
-                    console.error('Error fetching parent tweet', error);
-                }
-            };
+    //             } catch (error) {
+    //                 console.error('Error fetching parent tweet', error);
+    //             }
+    //         };
 
-            fetchParentTweet();
-        }
-    }, [parent_post_id]);
+    //         fetchParentTweet();
+    //     }
+    // }, [parent_post_id]);
 
     // コンポーネントがマウントされた時にいいねの数を取得
     useEffect(() => {
@@ -226,7 +214,7 @@ const Tweet: React.FC<TweetProps> = ({
                         component="button" 
                         variant="body2" 
                         onClick={handleUserClick} 
-                        sx={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
+                        // sx={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}
                     >
                         {name}
                     </Link>} 

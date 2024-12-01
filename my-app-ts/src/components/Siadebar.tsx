@@ -103,9 +103,6 @@ const Sidebar: React.FC = () => {
     { icon: <Home />, text: 'ホーム', path: '/timeline' },
     { icon: <Search />, text: '検索', path: '/search' },
     { icon: <Notifications />, text: '通知', path: '/notifications' },
-    { icon: <Mail />, text: 'メッセージ', path: '/messages' },
-    { icon: <BookmarkBorder />, text: 'ブックマーク', path: '/bookmarks' },
-    { icon: <ListAlt />, text: 'リスト', path: '/lists' },
     { icon: <PermIdentity />, text: 'プロフィール', path: `/user/${loginUser}` },
   ];
   return (
