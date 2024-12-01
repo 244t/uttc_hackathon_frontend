@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth,createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Storageのインポート
 
 const firebaseConfig = {
@@ -17,5 +17,7 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 export const createUser = createUserWithEmailAndPassword;
+
+export const signIn = signInWithEmailAndPassword
 
 export const storage = getStorage(app); // ストレージのインスタンスをエクスポート

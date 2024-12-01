@@ -35,4 +35,3 @@ const darkTheme = createTheme({
 });
 
 export default darkTheme;
-

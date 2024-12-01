@@ -1,4 +1,3 @@
-// export default Tweet;
 import React, { useState, useEffect } from 'react'; 
 import { Card, CardHeader, CardContent, CardActions, Avatar, IconButton, Typography, Box, Link, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
 import { Favorite, Reply, MoreVert } from '@mui/icons-material';
@@ -21,6 +20,18 @@ interface TweetProps {
     deleted_at: string;
     parent_post_id: string;
     reply_counts: number;
+    parentTweet?: {
+        user_id: string;
+        post_id: string;
+        content: string;
+        img_url: string;
+        name: string;
+        user_profile_img: string;
+        created_at: string;
+        edited_at: string;
+        deleted_at: string;
+        reply_counts: number;
+    };  // 親ツイートの情報（省略可能）
 }
 
 const Tweet: React.FC<TweetProps> = ({
@@ -41,7 +52,7 @@ const Tweet: React.FC<TweetProps> = ({
     const [likeCount, setLikeCount] = useState(0);
     const [openReplyDialog, setOpenReplyDialog] = useState(false); // 返信ダイアログの表示状態
     const [replyContent, setReplyContent] = useState(''); // 返信内容
-    const [parentTweet, setParentTweet] = useState<{ content: string, user_name: string, user_profile_img: string } | null>(null); // 親ツイートの情報
+    // const [parentTweet, setParentTweet] = useState<{ content: string, name: string, user_profile_img: string } | null>(null); // 親ツイートの情報
     const navigate = useNavigate();
     const { tweet, setTweet } = useTweet(); // tweet情報とsetTweet関数を取得
     const formatTime = (dateString: string) => {
@@ -82,11 +93,7 @@ const Tweet: React.FC<TweetProps> = ({
                         `https://uttc-hackathon-backend-951630660755.us-central1.run.app/post/${parent_post_id}`
                     );
                     const parentTweetData = response.data;
-                    setParentTweet({
-                        content: parentTweetData.content,
-                        user_name: parentTweetData.name,
-                        user_profile_img: parentTweetData.user_profile_img
-                    });
+                    
                 } catch (error) {
                     console.error('Error fetching parent tweet', error);
                 }
@@ -259,20 +266,18 @@ const Tweet: React.FC<TweetProps> = ({
             <Dialog open={openReplyDialog} onClose={handleCloseReplyDialog}>
                 <DialogTitle>返信</DialogTitle>
                 <DialogContent>
-                    {parentTweet && (
-                        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Avatar src={parentTweet.user_profile_img} />
-                            <Box>
-                                <Typography variant="body2" color="text.primary">
-                                    @{parentTweet.user_name}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {parentTweet.content}
-                                </Typography>
-                            </Box>
+                    <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Avatar src={user_profile_img} />
+                        <Box>
+                            <Typography variant="body2" color="text.primary">
+                                @{name}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                {content}
+                            </Typography>
                         </Box>
-                    )}
-                    <TweetInput onTweetSubmit={handleReplySubmit} />
+                    </Box>
+                    <TweetInput onTweetSubmit={handleReplySubmit} isReplyMode={true} />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseReplyDialog}>キャンセル</Button>

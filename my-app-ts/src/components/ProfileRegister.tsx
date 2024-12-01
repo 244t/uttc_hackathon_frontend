@@ -49,12 +49,12 @@ const ProfileRegister: React.FC = () => {
             bio : bio,
             img_url : profileImageUrl,
             header_url : headerImageUrl,
-            locatoin : location
+            location : location
         });
         console.log('Server response:', response.data);
 
         // レスポンスを受け取ったら、プロフィールページに遷移
-        navigate('/');
+        navigate(`/user/${loginUser}`);
     } catch (error) {
         console.error('Error submitting data:', error);
     }
