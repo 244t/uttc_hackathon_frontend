@@ -1,18 +1,24 @@
-// LoginUserContext.tsx
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
-// loginUserの型を定義
 interface LoginUserContextType {
   loginUser: string;
   setLoginUser: (userId: string) => void;
 }
 
-// 初期状態
 const LoginUserContext = createContext<LoginUserContextType | undefined>(undefined);
 
-// ContextのProviderを作成
 export const LoginUserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [loginUser, setLoginUser] = useState<string>('001');  // 初期ユーザーID
+  const [loginUser, setLoginUser] = useState<string>(() => {
+    // 初期値としてlocalStorageからユーザーIDを取得
+    return localStorage.getItem('loginUser') || ''; // 初期値は空文字列
+  });
+
+  // loginUserが変わったときにlocalStorageに保存
+  useEffect(() => {
+    if (loginUser) {
+      localStorage.setItem('loginUser', loginUser);
+    }
+  }, [loginUser]);
 
   return (
     <LoginUserContext.Provider value={{ loginUser, setLoginUser }}>
@@ -21,7 +27,6 @@ export const LoginUserProvider: React.FC<{ children: ReactNode }> = ({ children 
   );
 };
 
-// Contextを使うためのカスタムフック
 export const useLoginUser = (): LoginUserContextType => {
   const context = useContext(LoginUserContext);
   if (!context) {

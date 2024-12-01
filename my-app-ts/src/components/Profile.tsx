@@ -1,4 +1,3 @@
-
 'use client'
 
 import React, { useState, useEffect } from 'react'
@@ -14,9 +13,15 @@ import {
   Container,
   useTheme,
   useMediaQuery,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from '@mui/material'
 import { LocationOn as LocationIcon } from '@mui/icons-material'
 import axios from 'axios'
+import { useLoginUser } from '../contexts/LoginUserContext'; // LoginUserContextからuseLoginUserをインポート
+import ProfileUpdater from './UpdateProfile' // プロフィール更新コンポーネントをインポート
 
 interface ProfileProps {
   user_id: string
@@ -32,10 +37,14 @@ const Profile: React.FC<ProfileProps> = ({ user_id }) => {
     following: 0,
     followers: 0,
   })
+  const [isFollowing, setIsFollowing] = useState(false) // フォロー状態を管理
+  const [openEditDialog, setOpenEditDialog] = useState(false); // 編集ダイアログの状態
+  const { loginUser } = useLoginUser(); // グローバルコンテキストからログインユーザーIDを取得
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
+  // ユーザーのプロフィールを取得
   const fetchUserProfile = async (user_id: string) => {
     try {
       const response = await axios.get(
@@ -50,6 +59,7 @@ const Profile: React.FC<ProfileProps> = ({ user_id }) => {
         following: response.data.following_count || 0,
         followers: response.data.followers_count || 0,
       })
+      await checkFollowingAndFollowersCount(user_id);
     } catch (err) {
       console.error(`Failed to fetch profile for user ${user_id}`, err)
       setUser({
@@ -64,12 +74,76 @@ const Profile: React.FC<ProfileProps> = ({ user_id }) => {
     }
   }
 
+  const checkFollowingAndFollowersCount = async (user_id: string) => {
+    try {
+      // Get the list of followers
+      const followersResponse = await axios.get(
+        `https://uttc-hackathon-backend-951630660755.us-central1.run.app/user/${user_id}/followers`
+      );
+      console.log(followersResponse.data)
+      let followersCount = 0;
+      let isUserFollowing = false;
+      if (followersResponse.data){
+        isUserFollowing = followersResponse.data.some((follower: { user_id: string }) => follower.user_id === loginUser);
+        followersCount = followersResponse.data.length;
+      }
+      setIsFollowing(isUserFollowing);
+  
+      // Get the list of followings
+      const followingResponse = await axios.get(
+        `https://uttc-hackathon-backend-951630660755.us-central1.run.app/user/${user_id}/following`
+      );
+
+      let followingCount = 0;
+      if(followingResponse.data){
+        followingCount = followingResponse.data.length ;
+      }
+      
+      // Update the user state with the followers and following counts
+      setUser((prevUser) => ({
+        ...prevUser,
+        followers: followersCount,
+        following: followingCount,
+      }));
+    } catch (err) {
+      console.error('Error fetching following or followers count:', err);
+    }
+  };
+
   useEffect(() => {
-    fetchUserProfile(user_id)
-  }, [user_id])
+    fetchUserProfile(user_id);
+  }, [user_id]);
+
+  const handleFollow = async () => {
+    try {
+      // フォローまたはフォロー解除のAPIリクエストを送信
+      const url = isFollowing
+        ? `https://uttc-hackathon-backend-951630660755.us-central1.run.app/user/unfollow`
+        : `https://uttc-hackathon-backend-951630660755.us-central1.run.app/user/follow`;
+  
+      const response = await axios.post(url, { 
+        user_id: loginUser ,
+        following_id : user_id
+      }); // loginUserを送信
+      if (response.data.success) {
+          // フォロワー数の更新
+          setUser((prevUser) => ({
+            ...prevUser,
+            followers: isFollowing ? prevUser.followers - 1 : prevUser.followers + 1,
+          }));
+        } else {
+          // APIリクエストが失敗した場合、ボタン状態を元に戻す
+          setIsFollowing(!isFollowing);
+        }
+    } catch (error) {
+      console.error('Error following user:', error);
+      // エラーが発生した場合、ボタン状態を元に戻す
+      setIsFollowing(!isFollowing);
+    }
+  }
 
   return (
-    <Container sx={{ width: '100%', p:0 }}>
+    <Container sx={{ width: '100%', p: 0 }}>
       <Card sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
         <CardMedia
           component="img"
@@ -112,18 +186,36 @@ const Profile: React.FC<ProfileProps> = ({ user_id }) => {
                 </Typography>
               </Box>
             </Box>
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{
-                mt: isMobile ? 2 : 0,
-                fontWeight: 'bold',
-                borderRadius: '20px',
-                px: 3,
-              }}
-            >
-              フォローする
-            </Button>
+            {user_id !== loginUser && (
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{
+                  mt: isMobile ? 2 : 0,
+                  fontWeight: 'bold',
+                  borderRadius: '20px',
+                  px: 3,
+                }}
+                onClick={handleFollow} // フォローボタンをクリックした時の処理
+              >
+                {isFollowing ? 'フォロー中' : 'フォローする'} {/* ボタンのテキスト */}
+              </Button>
+            )}
+            {user_id === loginUser && (
+              <Button
+                variant="outlined"
+                color="primary"
+                sx={{
+                  mt: isMobile ? 2 : 0,
+                  fontWeight: 'bold',
+                  borderRadius: '20px',
+                  px: 3,
+                }}
+                onClick={() => setOpenEditDialog(true)} // ここで編集ダイアログを開く
+              >
+                編集する
+              </Button>
+            )}
           </Box>
           <Typography variant="body1" sx={{ mt: 2, mb: 3, textAlign: isMobile ? 'center' : 'left' }}>
             {user.bio}
@@ -138,23 +230,33 @@ const Profile: React.FC<ProfileProps> = ({ user_id }) => {
             }}
           >
             <Typography>
-              <strong>{user.following}</strong>{' '}
-              <Typography component="span" color="text.secondary">
-                フォロー中
-              </Typography>
+              <strong>{user.following}</strong> フォロー
             </Typography>
             <Typography>
-              <strong>{user.followers}</strong>{' '}
-              <Typography component="span" color="text.secondary">
-                フォロワー
-              </Typography>
+              <strong>{user.followers}</strong> フォロワー
             </Typography>
           </Stack>
         </CardContent>
       </Card>
+
+      {/* 編集ダイアログ */}
+      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} fullWidth>
+        <DialogTitle>プロフィールを編集</DialogTitle>
+        <DialogContent>
+          <ProfileUpdater 
+            userData={user} 
+            onClose={() => setOpenEditDialog(false)} 
+            onProfileUpdate={fetchUserProfile} 
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEditDialog(false)} color="primary">
+            キャンセル
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   )
 }
 
 export default Profile
-
