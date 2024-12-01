@@ -9,8 +9,8 @@ import { LoginUserProvider } from './contexts/LoginUserContext';  // Contextを�
 import { TweetProvider } from './contexts/TweetContext'; // TweetContextのインポート
 import { AvatarProvider } from './contexts/AvatarContext';
 import darkTheme from './theme/darkTheme';
+import SearchPage from './pages/SearchPage';
 import LoginPage from './pages/LoginFormPage';
-import ArtistBanner from './hoge';
 
 export const App: React.FC = () => {
   return (
@@ -33,11 +33,11 @@ export const App: React.FC = () => {
                 <Box sx={{ display: 'flex', flexGrow: 1 }}>
                   <Routes>
                     <Route path="/" element={<LoginPage />} />
+                    <Route path='/search' element={<SearchPage/>}/>
                     <Route path="/timeline" element={<TimelinePage />} />
                     <Route path="/user/:user_id" element={<UserDetailPage />} />
                     <Route path="/signup" element={<SignUpPage />} />
                     <Route path="/profile" element={<ProfileRegisterPage />} />
-                    <Route path="/arutist" element={<ArtistBanner/>}/>
                   </Routes>
                 </Box>
               </Box>

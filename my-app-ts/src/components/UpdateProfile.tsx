@@ -96,7 +96,7 @@ const ProfileUpdater: React.FC<ProfileRegisterProps> = ({ userData, onClose, onP
           sx={{ width: 80, height: 80 }}
         />
         <Button variant="outlined" component="label">
-          Change Profile Image
+          プロフィール画像を選択
           <input
             type="file"
             hidden
@@ -120,7 +120,7 @@ const ProfileUpdater: React.FC<ProfileRegisterProps> = ({ userData, onClose, onP
         >
         </Box>
         <Button variant="outlined" component="label">
-          Change Header Image
+          ヘッダー画像を選択
           <input
             type="file"
             hidden
@@ -131,13 +131,13 @@ const ProfileUpdater: React.FC<ProfileRegisterProps> = ({ userData, onClose, onP
       </Stack>
 
       {/* Name, Bio, and Location */}
-      <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth />
-      <TextField label="Bio" value={bio} onChange={(e) => setBio(e.target.value)} fullWidth multiline rows={4} />
-      <TextField label="Location" value={location} onChange={(e) => setLocation(e.target.value)} fullWidth />
+      <TextField label="名前" value={name} onChange={(e) => setName(e.target.value)} fullWidth />
+      <TextField label="自己紹介" value={bio} onChange={(e) => setBio(e.target.value)} fullWidth multiline rows={4} />
+      <TextField label="所在地" value={location} onChange={(e) => setLocation(e.target.value)} fullWidth />
 
       {/* Submit Button */}
       <Button variant="contained" color="primary" onClick={handleSubmit}>
-        Update Profile
+        編集
       </Button>
     </Stack>
   )

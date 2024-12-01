@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, CircularProgress, Box } from '@mui/material';
 import Tweet from './Tweet';
+import TweetWithReply from './TweetWithReply';  // 追加: TweetWithReply コンポーネントをインポート
 import axios from 'axios';
 import { useLoginUser } from '../contexts/LoginUserContext';  // ログインユーザーIDを取得
 import { useAvatar } from '../contexts/AvatarContext';  // AvatarContextをインポート
@@ -17,6 +18,7 @@ interface TweetData {
     deleted_at: string;
     parent_post_id: string;
     reply_counts: number;
+    parentTweet?: TweetData | null;  // parentTweetをオプショナルに追加
 }
 
 interface TweetListProps {
@@ -55,6 +57,30 @@ const TweetList: React.FC<TweetListProps> = ({ mode, user_id }) => {
         }
     };
 
+    // 親ツイートを取得する関数
+    const fetchParentTweet = async (parentPostId: string) => {
+        try {
+            const response = await axios.get(
+                `https://uttc-hackathon-backend-951630660755.us-central1.run.app/post/${parentPostId}`
+            );
+            const { user_profile_img, name } = await fetchUserProfile(response.data.user_id);
+            const parentPost = {
+                ...response.data,
+                user_profile_img,
+                name,
+                edited_at: response.data.edited_at?.Time || '',
+                deleted_at: response.data.deleted_at?.Time || '',
+                parent_post_id: response.data.parent_post_id?.String || '',
+            };
+            // console.log("親ツイート",parentPost)
+            return parentPost;
+            
+        } catch (err) {
+            console.error(`Failed to fetch parent tweet for post ${parentPostId}`, err);
+            return null;
+        }
+    };
+
     // ツイート（またはリプライ）を取得する関数
     const fetchTweets = async () => {
         try {
@@ -66,11 +92,15 @@ const TweetList: React.FC<TweetListProps> = ({ mode, user_id }) => {
             }
 
             const response = await axios.get(endpoint);
-            console.log(response);
-
             const modifiedTweets = await Promise.all(
                 response.data.map(async (tweet: any) => {
                     const { user_profile_img, name } = await fetchUserProfile(tweet.user_id); // ユーザーIDからプロフィール情報を取得
+                    let parentTweet = null;
+                    if (tweet.parent_post_id.Valid != false){
+
+                        parentTweet = await fetchParentTweet(tweet.parent_post_id.String);
+                    }
+
                     return {
                         ...tweet,
                         user_profile_img,
@@ -78,6 +108,7 @@ const TweetList: React.FC<TweetListProps> = ({ mode, user_id }) => {
                         edited_at: tweet.edited_at?.Time || '',
                         deleted_at: tweet.deleted_at?.Time || '',
                         parent_post_id: tweet.parent_post_id?.String || '',
+                        parentTweet, // 親ツイートを追加
                     };
                 })
             );
@@ -101,8 +132,9 @@ const TweetList: React.FC<TweetListProps> = ({ mode, user_id }) => {
     useEffect(() => {
         if (loginUser) {
             fetchTweets();
+            console.log(mode, user_id, loginUser, avatarUrl, loginName)
         }
-    }, [mode, user_id, loginUser, avatarUrl,loginName]);  // avatarUrlが変わったときにも再フェッチを実行
+    }, [mode, user_id, loginUser, avatarUrl, loginName]);  // avatarUrlが変わったときにも再フェッチを実行
 
     // ローディング中
     if (loading) {
@@ -125,8 +157,14 @@ const TweetList: React.FC<TweetListProps> = ({ mode, user_id }) => {
     return (
         <Box>
             {tweets.map((tweet, index) => (
-                <Box key={index} sx={{ mb: '3', py: 0.5, px: "24px" }}>
-                    <Tweet {...tweet} />
+                <Box key={tweet.post_id} sx={{ mb: '3', py: 0.5, px: "24px" }}>
+                    {tweet.parentTweet ? (
+                        // 親ツイートがある場合はTweetWithReplyを使う
+                        <TweetWithReply childTweet={tweet} parentTweet={tweet.parentTweet} />
+                    ) : (
+                        // 親ツイートがない場合はTweetを使う
+                        <Tweet {...tweet} />
+                    )}
                 </Box>
             ))}
         </Box>
