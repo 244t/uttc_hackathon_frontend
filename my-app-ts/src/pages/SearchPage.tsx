@@ -1,14 +1,15 @@
 // import React, { useState } from 'react'; 
-// import { Box, TextField, List, ListItem, Typography, IconButton, Divider, Grid, Card, CardContent, Avatar, useTheme, useMediaQuery } from '@mui/material';
-// import Sidebar from '../components/Siadebar'; // Corrected spelling of 'Siadebar' -> 'Sidebar'
+// import { Box, TextField, Grid, Typography, Avatar, Card, CardContent, Divider, IconButton, useTheme, useMediaQuery } from '@mui/material';
+// import Sidebar from '../components/Siadebar'; 
 // import RefreshIcon from '@mui/icons-material/Refresh';
+// import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
 // const SearchPage: React.FC = () => {
 //   const [prev, setPrev] = useState('');
 //   const [searchResults, setSearchResults] = useState([]);
 //   const [loading, setLoading] = useState(false);
 //   const [error, setError] = useState<string | null>(null);
-//   const [selectedUser, setSelectedUser] = useState<string | null>(null); // Added state for selected user
+//   const [selectedUser, setSelectedUser] = useState<string | null>(null);
 //   const theme = useTheme();
 //   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -82,22 +83,61 @@
 //               {loading && <Typography variant="body2">検索中...</Typography>}
 //               {error && <Typography variant="body2" color="error">{error}</Typography>}
 
-//               Display search results
+//               {/* Display search results */}
 //               <Box sx={{ flex: 1, overflow: 'auto', mt: 2 }}>
-//                 {searchResults.length > 0 ? (
-//                   <Grid container spacing={2}>
-//                     {searchResults.map((user: { user_id: string, name: string, img_url: string, bio: string, location: string }) => (
-//                       <Grid item xs={12} sm={6} md={4} key={user.user_id}>
-//                         <Card sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-//                           {/* Background image for the card */}
-//                           <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: `url(${user.img_url})`, backgroundSize: 'cover', backgroundPosition: 'center', zIndex: -1 }} />
+//                 {searchResults ? (
+//                   <Grid container direction="column" spacing={2}>
+//                     {searchResults.map((user: { user_id: string, name: string, img_url: string, bio: string, location: string, header_url: string }) => (
+//                       <Grid item xs={12} key={user.user_id}>
+//                         <Card
+//                           sx={{
+//                             display: 'flex',
+//                             flexDirection: 'column',
+//                             alignItems: 'center',
+//                             position: 'relative',
+//                             backgroundImage: `url(${user.header_url})`, // Background image for the card
+//                             backgroundSize: 'cover',
+//                             backgroundPosition: 'center',
+//                             height: '300px',
+//                             paddingLeft: 2, // Left padding inside the card
+//                             paddingRight: 2, // Right padding inside the card
+//                           }}
+//                         >
+//                           {/* Overlay */}
+//                           <Box
+//                             sx={{
+//                               position: 'absolute',
+//                               top: 0,
+//                               left: 0,
+//                               right: 0,
+//                               bottom: 0,
+//                               background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.7) 100%)',
+//                               zIndex: 1,
+//                             }}
+//                           />
                           
 //                           {/* Avatar */}
-//                           <Avatar alt={user.name} src={user.img_url} sx={{ width: 80, height: 80, marginTop: 3 }} />
-                          
-//                           {/* User info */}
-//                           <CardContent sx={{ textAlign: 'center' }}>
-//                             <Typography variant="h6">{user.name}</Typography>
+//                           <Avatar
+//                             alt={user.name}
+//                             src={user.img_url}
+//                             sx={{
+//                               width: 80,
+//                               height: 80,
+//                               marginTop: 'auto',
+//                               marginBottom: 5,
+//                               zIndex: 2,
+//                               alignSelf: 'center',
+//                             }}
+//                           />
+
+//                           {/* User Info */}
+//                           <CardContent sx={{ textAlign: 'center', zIndex: 2, color: 'white' }}>
+//                             {/* Link added here for navigation */}
+//                             <Typography variant="h6">
+//                               <Link to={`/user/${user.user_id}`} style={{ color: 'white', textDecoration: 'none' }}>
+//                                 {user.name}
+//                               </Link>
+//                             </Typography>
 //                             <Typography variant="body2" color="textSecondary">{user.bio}</Typography>
 //                             <Typography variant="body2" sx={{ fontStyle: 'italic' }}>@{user.location}</Typography>
 //                           </CardContent>
@@ -131,8 +171,8 @@
 // export default SearchPage;
 
 import React, { useState } from 'react'; 
-import { Box, TextField, Grid, Typography, Avatar, Card, CardContent, Divider, IconButton, useTheme, useMediaQuery } from '@mui/material';
-import Sidebar from '../components/Siadebar'; // Corrected spelling of 'Siadebar' -> 'Sidebar'
+import { Box, TextField, Grid, Typography, Avatar, Card, CardContent, Divider, IconButton, Button, useTheme, useMediaQuery } from '@mui/material';
+import Sidebar from '../components/Siadebar'; 
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
@@ -145,12 +185,9 @@ const SearchPage: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Handle search change and fetch data from API
-  const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setPrev(value);
-
-    if (value.trim() === '') {
+  // Handle search button click and fetch data from API
+  const handleSearchClick = async () => {
+    if (prev.trim() === '') {
       setSearchResults([]); // Clear results if input is empty
       return;
     }
@@ -159,12 +196,12 @@ const SearchPage: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch('https://uttc-hackathon-backend-951630660755.us-central1.run.app/user/search', {
+      const response = await fetch('https://uttc-hackathon-backend-951630660755.us-central1.run.app/find-similar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ search_word: value }),
+        body: JSON.stringify({ search_word: prev }),
       });
 
       if (response.ok) {
@@ -206,10 +243,20 @@ const SearchPage: React.FC = () => {
                 fullWidth
                 label="ユーザーを検索"
                 value={prev}
-                onChange={handleSearchChange}
+                onChange={(event) => setPrev(event.target.value)}  // This now only updates the search term
                 variant="outlined"
                 sx={{ marginTop: 2 }}
               />
+
+              {/* Search Button */}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSearchClick}  // Trigger the search on button click
+                sx={{ marginTop: 2 }}
+              >
+                検索
+              </Button>
 
               {/* Display loading or error */}
               {loading && <Typography variant="body2">検索中...</Typography>}
@@ -217,7 +264,7 @@ const SearchPage: React.FC = () => {
 
               {/* Display search results */}
               <Box sx={{ flex: 1, overflow: 'auto', mt: 2 }}>
-                {searchResults ? (
+                {searchResults.length > 0 ? (
                   <Grid container direction="column" spacing={2}>
                     {searchResults.map((user: { user_id: string, name: string, img_url: string, bio: string, location: string, header_url: string }) => (
                       <Grid item xs={12} key={user.user_id}>
