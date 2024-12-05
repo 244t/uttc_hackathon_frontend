@@ -1,224 +1,16 @@
-// // // export default TweetInput;
-// // import React, { useState } from 'react';
-// // import { Box, TextField, Button, IconButton, Avatar } from '@mui/material';
-// // import ImageIcon from '@mui/icons-material/Image';
-// // import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
-// // import EmojiPicker from 'emoji-picker-react'; 
-// // import { useAvatar } from '../contexts/AvatarContext'; // AvatarContextをインポート
-
-// // interface TweetInputProps {
-// //   onTweetSubmit: (tweetContent: string, imageUrl: string | null) => void;
-// //   isReplyMode ?:boolean;
-// // }
-
-// // const TweetInput: React.FC<TweetInputProps> = ({ isReplyMode,onTweetSubmit }) => {
-// //   const [tweetContent, setTweetContent] = useState('');
-// //   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
-// //   const { avatarUrl } = useAvatar(); // AvatarContextからavatarUrlを取得
-
-
-// //   // 絵文字が選択された時にテキストに追加する関数
-// //   const handleEmojiSelect = (emoji: any) => {
-// //     setTweetContent(tweetContent + emoji.emoji); // 絵文字をテキストに追加
-// //     setEmojiPickerVisible(false); // 絵文字ピッカーを非表示にする
-// //   };
-
-// //   const toggleEmojiPicker = () => {
-// //     setEmojiPickerVisible(!emojiPickerVisible); // 絵文字ピッカーの表示/非表示を切り替え
-// //   };
-
-// //   const handleTweetSubmit = () => {
-// //     if (!tweetContent.trim()) return; // 内容が空なら送信しない
-
-// //     onTweetSubmit(tweetContent, null); // 画像なしでツイート送信
-
-// //     // ツイート送信後、状態のリセット
-// //     setTweetContent('');
-// //   };
-
-// //   return (
-// //     <Box sx={{ p: 2, display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-// //       <Avatar src={avatarUrl || '/default-avatar.jpg'} />
-// //       <Box sx={{ flexGrow: 1 }}>
-// //         <TextField
-// //           fullWidth
-// //           multiline
-// //           variant="standard"
-// //           placeholder={isReplyMode ? "返信をツイート" : "いまどうしてる？"}
-// //           value={tweetContent}
-// //           onChange={(e) => setTweetContent(e.target.value)}
-// //           InputProps={{
-// //             disableUnderline: true,
-// //           }}
-// //           sx={{ mb: 2 }}
-// //         />
-// //         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-// //           <Box>
-// //             <IconButton size="small" component="label">
-// //               <ImageIcon />
-// //               <input type="file" accept="image/*" hidden />
-// //             </IconButton>
-// //             <IconButton size="small" onClick={toggleEmojiPicker}>
-// //               <EmojiEmotionsIcon />
-// //             </IconButton>
-// //           </Box>
-// //           <Button
-// //             variant="contained"
-// //             color="primary"
-// //             disabled={!tweetContent.trim()}
-// //             onClick={handleTweetSubmit}
-// //             sx={{ borderRadius: '9999px' }}
-// //           >
-// //             {isReplyMode ? '返信' : 'ツイートする'}
-// //           </Button>
-// //         </Box>
-
-// //         {/* 絵文字ピッカーの表示 */}
-// //         {emojiPickerVisible && (
-// //           <Box sx={{ position: 'absolute', bottom: '10px' }}>
-// //             <EmojiPicker 
-// //                 onEmojiClick={handleEmojiSelect} />
-// //           </Box>
-// //         )}
-// //       </Box>
-// //     </Box>
-// //   );
-// // };
-
-// // export default TweetInput;
-// // export default TweetInput;
-// import React, { useState } from 'react';
-// import { Box, TextField, Button, IconButton, Avatar } from '@mui/material';
-// import ImageIcon from '@mui/icons-material/Image';
-// import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
-// import EmojiPicker from 'emoji-picker-react'; 
-// import { storage } from '../firebase'; // Firebase storage import
-// import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase storage methods
-// import { useAvatar } from '../contexts/AvatarContext'; // AvatarContextをインポート
-
-// interface TweetInputProps {
-//   onTweetSubmit: (tweetContent: string, imageUrl: string | null) => void;
-//   isReplyMode ?:boolean;
-// }
-
-// const TweetInput: React.FC<TweetInputProps> = ({ isReplyMode,onTweetSubmit }) => {
-//   const [tweetContent, setTweetContent] = useState('');
-//   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
-//   const [imagePreview, setImagePreview] = useState<string | null>(null); // プレビュー用のステート
-//   const [selectedImage, setSelectedImage] = useState<File | null>(null); // 選択された画像
-//   const { avatarUrl } = useAvatar(); // AvatarContextからavatarUrlを取得
-  
-
-//   // 絵文字が選択された時にテキストに追加する関数
-//   const handleEmojiSelect = (emoji: any) => {
-//     setTweetContent(tweetContent + emoji.emoji); // 絵文字をテキストに追加
-//     setEmojiPickerVisible(false); // 絵文字ピッカーを非表示にする
-//   };
-
-//   const toggleEmojiPicker = () => {
-//     setEmojiPickerVisible(!emojiPickerVisible); // 絵文字ピッカーの表示/非表示を切り替え
-//   };
-
-//   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     const file = event.target.files ? event.target.files[0] : null;
-//     if (file) {
-//       setSelectedImage(file);
-//       const reader = new FileReader();
-//       reader.onloadend = () => {
-//         setImagePreview(reader.result as string); // 画像プレビューを表示
-//       };
-//       reader.readAsDataURL(file); // プレビュー用にファイルを読み込む
-//     }
-//   };
-
-//   // Upload image to Firebase Storage
-//   const uploadImage = async (image: File, path: string) => {
-//     if (!image) return null;
-//     const imageRef = ref(storage, path);  // Create a reference for the image
-//     await uploadBytes(imageRef, image);  // Upload image to Firebase
-//     const imageUrl = await getDownloadURL(imageRef);  // Get the download URL
-//     return imageUrl;
-//   }
-
-//   const handleTweetSubmit = () => {
-//     if (!tweetContent.trim()) return; // 内容が空なら送信しない
-
-//     if (selectedImage) {
-//       // Firebase Storageに画像をアップロード
-//       const imageUrl = uploadImage(selectedImage, `content_images/${encodeURIComponent(selectedImage)}`)
-//     }
-
-//     onTweetSubmit(tweetContent, null); // 画像なしでツイート送信
-
-//     // ツイート送信後、状態のリセット
-//     setTweetContent('');
-//     setTweetContent('');
-//     setSelectedImage(null);
-//   };
-
-//   return (
-//     <Box sx={{ p: 2, display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-//       <Avatar src={avatarUrl || '/default-avatar.jpg'} />
-//       <Box sx={{ flexGrow: 1 }}>
-//         <TextField
-//           fullWidth
-//           multiline
-//           variant="standard"
-//           placeholder={isReplyMode ? "返信をツイート" : "いまどうしてる？"}
-//           value={tweetContent}
-//           onChange={(e) => setTweetContent(e.target.value)}
-//           InputProps={{
-//             disableUnderline: true,
-//           }}
-//           sx={{ mb: 2 }}
-//         />
-//         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-//           <Box>
-//           <IconButton size="small" component="label">
-//               <ImageIcon />
-//               <input 
-//                 type="file" 
-//                 accept="image/*" 
-//                 hidden 
-//                 onChange={handleImageSelect} 
-//               />
-//             </IconButton>
-//             <IconButton size="small" onClick={toggleEmojiPicker}>
-//               <EmojiEmotionsIcon />
-//             </IconButton>
-//           </Box>
-//           <Button
-//             variant="contained"
-//             color="primary"
-//             disabled={!tweetContent.trim()}
-//             onClick={handleTweetSubmit}
-//             sx={{ borderRadius: '9999px' }}
-//           >
-//             {isReplyMode ? '返信' : 'ツイートする'}
-//           </Button>
-//         </Box>
-
-//         {/* 絵文字ピッカーの表示 */}
-//         {emojiPickerVisible && (
-//           <Box sx={{ position: 'absolute', bottom: '10px' }}>
-//             <EmojiPicker 
-//                 onEmojiClick={handleEmojiSelect} />
-//           </Box>
-//         )}
-//       </Box>
-//     </Box>
-//   );
-// };
-
-// export default TweetInput;
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, TextField, Button, IconButton, Avatar } from '@mui/material';
 import ImageIcon from '@mui/icons-material/Image';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
+import MicIcon from '@mui/icons-material/Mic';
+import MicOffIcon from '@mui/icons-material/MicOff';
+import AssistantIcon from '@mui/icons-material/Assistant'; // AIアイコンのインポート
 import EmojiPicker from 'emoji-picker-react'; 
-import { storage } from '../firebase'; // Firebase storage import
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase storage methods
-import { useAvatar } from '../contexts/AvatarContext'; // AvatarContextをインポート
+import { storage } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useAvatar } from '../contexts/AvatarContext';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'; 
+import axios from 'axios';
 
 interface TweetInputProps {
   onTweetSubmit: (tweetContent: string, imageUrl: string | null) => void;
@@ -228,18 +20,60 @@ interface TweetInputProps {
 const TweetInput: React.FC<TweetInputProps> = ({ isReplyMode, onTweetSubmit }) => {
   const [tweetContent, setTweetContent] = useState('');
   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null); // プレビュー用のステート
-  const [selectedImage, setSelectedImage] = useState<File | null>(null); // 選択された画像
-  const { avatarUrl } = useAvatar(); // AvatarContextからavatarUrlを取得
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [suggestedText, setSuggestedText] = useState<string>('');
+  const [geminiMode, setGeminiMode] = useState<boolean>(false); // Geminiモードの状態を管理
+  const [buttonActive, setButtonActive] = useState<boolean>(false); // ボタンのアクティブ状態を管理
+  const { avatarUrl } = useAvatar();
   
-  // 絵文字が選択された時にテキストに追加する関数
+  const { transcript, resetTranscript, listening } = useSpeechRecognition();
+
+  // 音声認識の開始
+  const startListening = () => {
+    resetTranscript();
+    SpeechRecognition.startListening({ continuous: true, language: 'ja-JP' });
+  };
+
+  // 音声認識の停止
+  const stopListening = () => {
+    SpeechRecognition.stopListening();
+    setTweetContent(transcript);
+    resetTranscript();
+  };
+
+  // Google Cloud Vertex AI APIを使って続きを提案する
+  const getSuggestedText = async (inputText: string) => {
+    if (!inputText.trim()) return;
+    
+    const tweetRequestText = `${inputText} ツイートを作成中です。これに続く文を考えて魅力的なツイートを考えてください。1パターンのみ返してください。必ず${inputText}の続きから返して下さい。 ツイ廃構文でお願いします。`;
+
+    try {
+      const response = await axios.post('https://uttc-hackathon-backend-951630660755.us-central1.run.app/generate-text', { text: tweetRequestText });
+      setSuggestedText(response.data);
+      console.log(response.data)
+    } catch (error) {
+      console.error("Error fetching suggested text:", error);
+    }
+  };
+
+  useEffect(() => {
+    // geminiModeがオンの場合のみAPIリクエストを送る
+    if (geminiMode && tweetContent.trim()) {
+      const timer = setTimeout(() => {
+        getSuggestedText(tweetContent);
+      }, 500); // 500ms遅延でAPI呼び出し
+      return () => clearTimeout(timer);
+    }
+  }, [tweetContent, geminiMode]); // geminiModeが変更された時にもリクエストを確認
+
   const handleEmojiSelect = (emoji: any) => {
-    setTweetContent(tweetContent + emoji.emoji); // 絵文字をテキストに追加
-    setEmojiPickerVisible(false); // 絵文字ピッカーを非表示にする
+    setTweetContent(tweetContent + emoji.emoji);
+    setEmojiPickerVisible(false);
   };
 
   const toggleEmojiPicker = () => {
-    setEmojiPickerVisible(!emojiPickerVisible); // 絵文字ピッカーの表示/非表示を切り替え
+    setEmojiPickerVisible(!emojiPickerVisible);
   };
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -248,38 +82,57 @@ const TweetInput: React.FC<TweetInputProps> = ({ isReplyMode, onTweetSubmit }) =
       setSelectedImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string); // 画像プレビューを表示
+        setImagePreview(reader.result as string);
       };
-      reader.readAsDataURL(file); // プレビュー用にファイルを読み込む
+      reader.readAsDataURL(file);
     }
   };
 
-  // Upload image to Firebase Storage
   const uploadImage = async (image: File, path: string) => {
     if (!image) return null;
-    const imageRef = ref(storage, path);  // Create a reference for the image
-    await uploadBytes(imageRef, image);  // Upload image to Firebase
-    const imageUrl = await getDownloadURL(imageRef);  // Get the download URL
+    const imageRef = ref(storage, path);
+    await uploadBytes(imageRef, image);
+    const imageUrl = await getDownloadURL(imageRef);
     return imageUrl;
-  }
+  };
 
   const handleTweetSubmit = async () => {
-    if (!tweetContent.trim()) return; // 内容が空なら送信しない
+    if (!tweetContent.trim()) return;
 
     let imageUrl: string | null = null;
 
-    // 画像が選択されていれば、Firebase Storageにアップロード
     if (selectedImage) {
       imageUrl = await uploadImage(selectedImage, `content_images/${encodeURIComponent(selectedImage.name)}`);
     }
+    console.log("img_url",imageUrl)
 
-    // ツイート送信
     onTweetSubmit(tweetContent, imageUrl);
 
-    // ツイート送信後、状態のリセット
     setTweetContent('');
     setSelectedImage(null);
     setImagePreview(null);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTweetContent(e.target.value);
+  };
+
+  const handleTabPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Tab' && suggestedText && geminiMode) { // Geminiモードが有効な場合のみ置換
+      // 提案されたテキストで現在のtweetContentを置換
+      setTweetContent(suggestedText);
+      event.preventDefault(); // タブキーによるフォーカス移動を防止
+    }
+  };
+
+  // Geminiモードのトグル処理
+  const toggleGeminiMode = () => {
+    setGeminiMode(!geminiMode);
+  };
+
+  const handleButtonClick = () => {
+    setButtonActive(true);
+    setTimeout(() => setButtonActive(false), 200); // クリック後200msでリセット
   };
 
   return (
@@ -292,12 +145,18 @@ const TweetInput: React.FC<TweetInputProps> = ({ isReplyMode, onTweetSubmit }) =
           variant="standard"
           placeholder={isReplyMode ? "返信をツイート" : "いまどうしてる？"}
           value={tweetContent}
-          onChange={(e) => setTweetContent(e.target.value)}
+          onChange={handleChange}
+          onKeyDown={handleTabPress}  // タブキーを処理
           InputProps={{
             disableUnderline: true,
           }}
           sx={{ mb: 2 }}
         />
+        {suggestedText && geminiMode && (
+          <Box sx={{ mt: 2, color: 'grey', fontStyle: 'italic' }}>
+            <strong>おすすめ:</strong> ({suggestedText})
+          </Box>
+        )}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box>
             <IconButton size="small" component="label">
@@ -312,30 +171,44 @@ const TweetInput: React.FC<TweetInputProps> = ({ isReplyMode, onTweetSubmit }) =
             <IconButton size="small" onClick={toggleEmojiPicker}>
               <EmojiEmotionsIcon />
             </IconButton>
+            <IconButton size="small" onClick={listening ? stopListening : startListening}>
+              {listening ? <MicOffIcon /> : <MicIcon />}
+            </IconButton>
+            <IconButton 
+              size="small" 
+              onClick={toggleGeminiMode} 
+              sx={{ color: buttonActive ? 'yellow' : 'inherit' }} // ボタン押下時のアイコン色を変更
+            >
+              <AssistantIcon />
+            </IconButton>
           </Box>
           <Button
             variant="contained"
             color="primary"
             disabled={!tweetContent.trim()}
             onClick={handleTweetSubmit}
-            sx={{ borderRadius: '9999px' }}
+            sx={{
+              borderRadius: '9999px',
+              backgroundColor: buttonActive ? 'darkblue' : 'primary.main', // ボタンの色を変える
+              boxShadow: buttonActive ? '0 2px 10px rgba(0, 0, 0, 0.2)' : 'none', // クリック時に影をつける
+              '&:hover': {
+                backgroundColor: buttonActive ? 'darkblue' : 'primary.dark',
+              },
+            }}
           >
             {isReplyMode ? '返信' : 'ツイートする'}
           </Button>
         </Box>
 
-        {/* 画像プレビュー */}
         {imagePreview && (
           <Box sx={{ mt: 2 }}>
             <img src={imagePreview} alt="Preview" style={{ width: '100%', borderRadius: '8px' }} />
           </Box>
         )}
 
-        {/* 絵文字ピッカーの表示 */}
         {emojiPickerVisible && (
           <Box sx={{ position: 'absolute', bottom: '10px' }}>
-            <EmojiPicker 
-                onEmojiClick={handleEmojiSelect} />
+            <EmojiPicker onEmojiClick={handleEmojiSelect} />
           </Box>
         )}
       </Box>

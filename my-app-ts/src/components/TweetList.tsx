@@ -132,7 +132,7 @@ const TweetList: React.FC<TweetListProps> = ({ mode, user_id }) => {
     useEffect(() => {
         if (loginUser) {
             fetchTweets();
-            console.log(mode, user_id, loginUser, avatarUrl, loginName)
+            console.log(mode, "User_ID:",user_id, "loginUSer",loginUser, "avatorURL",avatarUrl, "loginName",loginName)
         }
     }, [mode, user_id, loginUser, avatarUrl, loginName]);  // avatarUrlが変わったときにも再フェッチを実行
 

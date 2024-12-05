@@ -1,16 +1,18 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CssBaseline, ThemeProvider, Box } from '@mui/material';
 import TimelinePage from './pages/TimelinePage';
 import UserDetailPage from './pages/UserDetailPage';
 import SignUpPage from './pages/SignUpPage';
 import ProfileRegisterPage from './pages/ProfileRegisterPage';
-import { LoginUserProvider } from './contexts/LoginUserContext';  // Contextをインポート
+import { LoginUserProvider, useLoginUser } from './contexts/LoginUserContext';  // Contextをインポート
 import { TweetProvider } from './contexts/TweetContext'; // TweetContextのインポート
 import { AvatarProvider } from './contexts/AvatarContext';
 import darkTheme from './theme/darkTheme';
 import SearchPage from './pages/SearchPage';
 import LoginPage from './pages/LoginFormPage';
+import { useNavigate } from 'react-router-dom';
+
 
 export const App: React.FC = () => {
   return (
@@ -20,6 +22,7 @@ export const App: React.FC = () => {
         <TweetProvider>
           <Router>
             <CssBaseline />
+
             <Box sx={{ display: 'flex', bgcolor: 'background.default', color: 'text.primary', minHeight: '100vh' }}>
               <Box
                 component="main"
@@ -29,7 +32,6 @@ export const App: React.FC = () => {
                   flexDirection: 'column',
                 }}
               >
-                {/* <Header title="Tweet Display App" showSearch /> */}
                 <Box sx={{ display: 'flex', flexGrow: 1 }}>
                   <Routes>
                     <Route path="/" element={<LoginPage />} />
