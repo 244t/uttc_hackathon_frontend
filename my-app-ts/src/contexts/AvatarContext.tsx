@@ -75,12 +75,14 @@ export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children }) => {
       axios
         .get(`https://uttc-hackathon-backend-951630660755.us-central1.run.app/user/${loginUser}`)
         .then((response) => {
+          console.log(response)
           setAvatarUrl(response.data.img_url); // APIから取得したアバターURLを設定
           setLoginName(response.data.name); // APIから取得したユーザー名を設定
         })
         .catch((error) => {
           console.error('Error fetching user data:', error);
         });
+        console.log(avatarUrl)
     }
   }, [loginUser]); // loginUserが変わるたびに再度APIを呼び出す
 

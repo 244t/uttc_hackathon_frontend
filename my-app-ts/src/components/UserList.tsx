@@ -71,6 +71,11 @@ const UserList: React.FC<{ userId: string, mode: string }> = ({ userId, mode }) 
                   backgroundSize: 'cover', // 画像をカードのサイズに合わせてカバー
                   backgroundPosition: 'center', // 画像を中央に配置
                   height: '300px', // カードの高さを指定（任意で調整）
+                  transition: 'transform 0.3s ease, box-shadow 0.3s ease', // 変化のスムーズさ
+                  '&:hover': {
+                    transform: 'scale(1)', // ホバー時に少し大きくなる
+                    boxShadow: '0 10px 20px rgba(0, 0, 0, 0.2)', // 浮き上がる効果を与える影
+                  },
                 }}
               >
                 {/* 黒いオーバーレイを重ねる */}

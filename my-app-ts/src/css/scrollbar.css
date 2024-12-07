@@ -1,0 +1,23 @@
+/* スクロールバーの全体の幅 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px; /* 横スクロールバーも変更 */
+  }
+  
+  /* スクロールバーのつまみ（thumb）のデザイン */
+  ::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+  }
+  
+  /* スクロールバーのつまみ（hover時）のデザイン */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+  }
+  
+  /* スクロールバーのトラック（背景）のデザイン */
+  ::-webkit-scrollbar-track {
+    background: #1E1E1E;
+    border-radius: 10px;
+  }
+  

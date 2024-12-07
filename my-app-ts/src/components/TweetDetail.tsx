@@ -124,7 +124,7 @@ const TweetDetail: React.FC = () => {
             <Typography variant="h6">ツイート詳細</Typography>
             <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
                 <Avatar 
-                    src={isCurrentUser ? avatarUrl : tweet.user_profile_img} // 自分の画像を表示
+                    src={tweet.user_profile_img} // 自分の画像を表示
                     sx={{ mr: 2, width: 48, height: 48 }} 
                 />
                 <Box>

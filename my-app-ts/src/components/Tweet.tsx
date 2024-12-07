@@ -198,7 +198,17 @@ const Tweet: React.FC<TweetProps> = ({
     return (
         <>
             {/* <Card sx={{ maxWidth: '100%', mb: 2 }} elevation={2}> */}
-            <Card sx={{ width: '100%'}} elevation={2}>
+            <Card
+                sx={{
+                    width: '100%',
+                    transition: 'background-color 0.3s ease, box-shadow 0.3s ease', // 色と影の変化にかかる時間
+                    '&:hover': {
+                        backgroundColor: '#3A4045', // ホバー時に背景色を少し変える
+                        boxShadow: 'none', // 影をなくして浮き上がり感を消す
+                    },
+                }}
+                elevation={2}
+            >
                 <CardHeader
                     avatar={
                         <Avatar src={user_profile_img} aria-label="user avatar">

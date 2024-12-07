@@ -11,7 +11,7 @@ import { AvatarProvider } from './contexts/AvatarContext';
 import darkTheme from './theme/darkTheme';
 import SearchPage from './pages/SearchPage';
 import LoginPage from './pages/LoginFormPage';
-import { useNavigate } from 'react-router-dom';
+import './css/scrollbar.css'
 
 
 export const App: React.FC = () => {

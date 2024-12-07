@@ -36,21 +36,14 @@ const TweetList: React.FC<TweetListProps> = ({ mode, user_id }) => {
     // ユーザーのプロフィール情報（名前と画像URL）を取得する関数
     const fetchUserProfile = async (user_id: string) => {
         try {
-            // ログインユーザーの場合、グローバルコンテキストから情報を取得
-            if (user_id === loginUser) {
-                return {
-                    user_profile_img: avatarUrl,
-                    name: loginName,
-                };
-            } else {
-                const response = await axios.get(
-                    `https://uttc-hackathon-backend-951630660755.us-central1.run.app/user/${user_id}`
-                );
-                return {
-                    user_profile_img: response.data.img_url || '',
-                    name: response.data.name || 'Unknown User',
-                };
-            }
+            
+            const response = await axios.get(
+                `https://uttc-hackathon-backend-951630660755.us-central1.run.app/user/${user_id}`
+            );
+            return {
+                user_profile_img: response.data.img_url || '',
+                name: response.data.name || 'Unknown User',
+            };
         } catch (err) {
             console.error(`Failed to fetch profile for user ${user_id}`, err);
             return { user_profile_img: '', name: 'Unknown User' };

@@ -80,7 +80,6 @@ const Profile: React.FC<ProfileProps> = ({ user_id }) => {
       const followersResponse = await axios.get(
         `https://uttc-hackathon-backend-951630660755.us-central1.run.app/user/${user_id}/followers`
       );
-      console.log(followersResponse.data)
       let followersCount = 0;
       let isUserFollowing = false;
       if (followersResponse.data){
