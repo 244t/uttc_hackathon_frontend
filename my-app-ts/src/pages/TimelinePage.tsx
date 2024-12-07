@@ -10,6 +10,7 @@ import Sidebar from '../components/Siadebar';
 const TimelinePage: React.FC = () => {
   const { loginUser } = useLoginUser();
   const [selectedTweet, setSelectedTweet] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState<number>(0); 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -50,7 +51,11 @@ const TimelinePage: React.FC = () => {
     } catch (error) {
       console.error('Error submitting tweet:', error);
     }
+  };
 
+  // リフレッシュボタンが押された時にリストをリフレッシュする
+  const handleRefresh = () => {
+    setRefreshKey(prevKey => prevKey + 1); // 新しいキーを設定してリストを再レンダリングさせる
   };
 
   return (
@@ -75,7 +80,7 @@ const TimelinePage: React.FC = () => {
               <Box sx={{ position: 'sticky', top: 0, zIndex: 1, bgcolor: 'background.default' }}>
                 <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="h6">ホーム</Typography>
-                  <IconButton>
+                  <IconButton onClick={handleRefresh}> {/* Refreshボタンにクリックイベントを追加 */}
                     <RefreshIcon />
                   </IconButton>
                 </Box>
@@ -90,7 +95,7 @@ const TimelinePage: React.FC = () => {
               }} />
 
               <Box sx={{ flex: 1, overflow: 'auto' }}>
-                <TweetList mode="timeline" />
+                <TweetList key={refreshKey} mode="timeline" /> {/* keyをrefreshKeyに設定してリフレッシュ */}
               </Box>
             </Box>
           </Grid>
@@ -113,4 +118,3 @@ const TimelinePage: React.FC = () => {
 };
 
 export default TimelinePage;
-
