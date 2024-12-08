@@ -665,7 +665,7 @@ const TweetInput: React.FC<TweetInputProps> = ({ isReplyMode, onTweetSubmit }) =
         />
         {suggestedText && geminiMode && (
           <Box sx={{ mt: 2, color: 'grey', fontStyle: 'italic' }}>
-            <strong>おすすめ:</strong> ({suggestedText})
+            <strong>Copilot:</strong> ({suggestedText})
           </Box>
         )}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
