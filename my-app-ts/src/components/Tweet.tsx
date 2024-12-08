@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'; 
 import { Card, CardHeader, CardContent, CardActions, Avatar, IconButton, Typography, Box, Link, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
 import { Favorite, Reply, MoreVert } from '@mui/icons-material';
+import { Menu, MenuItem } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import TweetInput from './InputTweet'; // TweetInputをインポート
@@ -43,6 +44,9 @@ const Tweet: React.FC<TweetProps> = ({
     // const [parentTweet, setParentTweet] = useState<{ content: string, name: string, user_profile_img: string } | null>(null); // 親ツイートの情報
     const navigate = useNavigate();
     const { tweet, setTweet } = useTweet(); // tweet情報とsetTweet関数を取得
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);  // メニューのアンカー要素
+    const openMenu = Boolean(anchorEl);  // メニューが開いているかどうか
+
     const formatTime = (dateString: string) => {
         const date = new Date(dateString);
         const now = new Date();
@@ -68,6 +72,19 @@ const Tweet: React.FC<TweetProps> = ({
             // 24時間以上前の場合は「年月日」
             return date.toLocaleDateString([], { year: 'numeric', month: '2-digit', day: '2-digit' });
         }
+    };
+    
+    const handleMoreClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);  // メニューを開く
+    };
+    
+    const handleCloseMenu = () => {
+        setAnchorEl(null);  // メニューを閉じる
+    };
+    
+    const handleNavigateToUser = () => {
+        handleCloseMenu();  // メニューを閉じる
+        navigate(`/user/${user_id}`);  // ユーザーページに遷移
     };
     
     
@@ -216,7 +233,7 @@ const Tweet: React.FC<TweetProps> = ({
                         </Avatar>
                     }
                     action={
-                        <IconButton aria-label="settings">
+                        <IconButton aria-label="settings"  onClick={handleMoreClick}>
                             <MoreVert />
                         </IconButton>
                     }
@@ -259,6 +276,17 @@ const Tweet: React.FC<TweetProps> = ({
                     </Typography>
                 </CardActions>
             </Card>
+
+            {/* ポップアップメニュー */}
+            <Menu
+                anchorEl={anchorEl}
+                open={openMenu}
+                onClose={handleCloseMenu}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <MenuItem onClick={handleNavigateToUser}>ユーザーページに移動</MenuItem>
+            </Menu>
 
             {/* 返信ダイアログ */}
             <Dialog open={openReplyDialog} onClose={handleCloseReplyDialog}>

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import TweetInput from './InputTweet'; // TweetInputをインポート
 import { useLoginUser } from '../contexts/LoginUserContext'; // ログインユーザーを取得するカスタムフック
 import { useTweet } from '../contexts/TweetContext'; // TweetContextのインポート
+import { Menu, MenuItem } from '@mui/material';
 
 interface TweetData {
     user_id: string;
@@ -36,6 +37,10 @@ const TweetWithReply: React.FC<TweetProps> = ({ childTweet, parentTweet }) => {
     const [currentPostId, setCurrentPostId] = useState<string>(''); // 返信対象の親ツイートの post_id を保持
     const navigate = useNavigate();
     const { setTweet } = useTweet(); 
+
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);  // メニューのアンカー要素
+    const openMenu = Boolean(anchorEl);  // メニューが開いているかどうか
+
 
     const formatTime = (dateString: string) => {
         const date = new Date(dateString);
@@ -89,6 +94,19 @@ const TweetWithReply: React.FC<TweetProps> = ({ childTweet, parentTweet }) => {
         } catch (error) {
             console.error('Error toggling like status', error);
         }
+    };
+    
+    const handleMoreClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);  // メニューを開く
+    };
+    
+    const handleCloseMenu = () => {
+        setAnchorEl(null);  // メニューを閉じる
+    };
+    
+    const handleNavigateToUser = () => {
+        handleCloseMenu();  // メニューを閉じる
+        navigate(`/user/${childTweet.user_id}`);  // ユーザーページに遷移
     };
     
 
@@ -150,7 +168,7 @@ const TweetWithReply: React.FC<TweetProps> = ({ childTweet, parentTweet }) => {
             >
                 <CardHeader
                     avatar={<Avatar src={childTweet.user_profile_img}>{childTweet.name[0]}</Avatar>}
-                    action={<IconButton aria-label="settings"><MoreVert /></IconButton>}
+                    action={<IconButton aria-label="settings"onClick={handleMoreClick}><MoreVert /></IconButton>}
                     title={<Link component="button" variant="body2" onClick={() => navigate(`/user/${childTweet.user_id}`)}>{childTweet.name}</Link>}
                     subheader={formatTime(childTweet.created_at)}
                 />
@@ -169,6 +187,17 @@ const TweetWithReply: React.FC<TweetProps> = ({ childTweet, parentTweet }) => {
                     <Typography variant="body2" color="text.secondary">{childTweet.reply_counts}</Typography>
                 </CardActions>
             </Card>
+
+             {/* ポップアップメニュー */}
+             <Menu
+                anchorEl={anchorEl}
+                open={openMenu}
+                onClose={handleCloseMenu}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <MenuItem onClick={handleNavigateToUser}>ユーザーページに移動</MenuItem>
+            </Menu>
 
             {/* Reply Dialog */}
             <Dialog open={openReplyDialog} onClose={handleCloseReplyDialog}>
