@@ -284,6 +284,20 @@ const Sidebar: React.FC = () => {
           <Twitter fontSize="large" />
         </IconButton>
 
+        {/* アイコンの横にロゴを追加 */}
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 'bold',
+            color: 'primary.main',
+            ml: 0, // アイコンとの間隔を調整
+            textAlign: 'left', // 左詰め
+            fontFamily: 'Caveat', // フォントの指定
+          }}
+        >
+          Aoi Tori
+        </Typography>
+
         <IconButton
           onClick={handleNotificationClick}
           sx={{
